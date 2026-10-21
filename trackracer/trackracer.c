@@ -35,6 +35,7 @@
 #include "op1_synth.h"
 #include "seq/seq_text.h"
 
+#define TR_VERSION "V1.2"                              /* shown top left on the screen */
 #define TR_LANES   6
 #define TR_POS     64                                   /* positions per lap */
 #define TR_PATS    4
@@ -546,6 +547,8 @@ static void tr_screen_draw(void *r, int pos)
     tr_bank_init(b);
     uint64_t now = b->tick_q16;
     uint8_t c[4];
+
+    sq_text(r, OP1_Q10(2), OP1_Q10(2), OP1_Q10(1), TR_VERSION, 0x280, tr_grey);   /* version, top left */
 
     /* start / finish line: chequered dashes at the top, across all lanes */
     for (int y = TR_CY - tr_r[0] - 5, n = 0; y < TR_CY - tr_r[TR_LANES - 1] + 5; y += 3, n++)
