@@ -1,0 +1,13 @@
+{
+  "name": "track racer",
+  "author": "Manuel Montanari",
+  "kind": "seq",
+  "symbol": "SEQ_trackracer",
+  "sources": [
+    "trackracer.c"
+  ],
+  "screen": {
+    "svg": "trackracer.svg",
+    "symbol": "SCREEN_trackracer"
+  }
+}
