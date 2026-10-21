@@ -14,13 +14,24 @@ Engine drone techno / industrial: tappeti lunghi che non si ripetono mai, per ba
 | bianco | ruggine | ring mod inarmonico, wavefolder, soffio |
 | rosso | spessore | detune dei 3 saw e livello del sub |
 
-Demo da 90 s (manopole ferme): [`demos/`](demos/). Dettagli tecnici: [`monolith/README.md`](monolith/README.md).
+### Schermata
+
+Ispirata a *2001: Odissea nello spazio*: un monolito (proporzioni 4:9) al centro e **quattro ominidi**, uno per manopola
+nel suo colore. Più alto il valore, più l'ominide si avvicina al monolito; al massimo lo **tocca**. Blu e verde a
+sinistra, bianco e rosso a destra. Il resto segue lo stato reale del drone: **tre lune** = i tre LFO lenti (ogni tanto si
+allineano sopra il monolito), **linea blu** = posizione reale del filtro, **scalfitture bianche** = ruggine, **profondità
+rossa** del monolito = detune.
+
+![animazione](demos/screen_anim.gif)
+
+Demo audio da 90 s (manopole ferme): [`demos/`](demos/). Dettagli tecnici: [`monolith/README.md`](monolith/README.md).
 
 ## Struttura
 
     monolith/        il plugin: monolith.c, plugin.json, harness per render lunghi
     demos/           render sul PC (mp3) e spettrogramma
     release/         monolith.op1p pronto da installare (op1r 34+, API 1)
+    tools/           anteprima animata della schermata (make_anim.py)
     setup.sh         collega i plugin a un checkout di op1r-src
 
 ## Sviluppo

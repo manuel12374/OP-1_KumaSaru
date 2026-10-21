@@ -12,5 +12,9 @@
     16000,
     9000,
     18000
-  ]
+  ],
+  "screen": {
+    "svg": "monolith.svg",
+    "symbol": "SCREEN_monolith"
+  }
 }
