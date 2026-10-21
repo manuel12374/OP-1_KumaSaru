@@ -20,6 +20,7 @@ Demo da 90 s (manopole ferme): [`demos/`](demos/). Dettagli tecnici: [`monolith/
 
     monolith/        il plugin: monolith.c, plugin.json, harness per render lunghi
     demos/           render sul PC (mp3) e spettrogramma
+    release/         monolith.op1p pronto da installare (op1r 34+, API 1)
     setup.sh         collega i plugin a un checkout di op1r-src
 
 ## Sviluppo
