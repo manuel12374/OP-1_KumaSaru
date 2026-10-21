@@ -2,3 +2,4 @@ build/
 out/
 *.op1
 tools/build/
+circuit/test/build/

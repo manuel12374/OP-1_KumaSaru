@@ -1,6 +1,6 @@
 # OP-1 Monolith
 
-Custom synth engines for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
+Custom synth engines and sequencers for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
 firmware (R246), written with the synth SDK from [op1r-src](https://github.com/pcppcp/op1r-src).
 
 ## monolith
@@ -26,11 +26,20 @@ the live filter position, **white scratches** = rust, **red depth edge** of the 
 
 90-second audio demos (knobs untouched): [`demos/`](demos/). Technical details: [`monolith/README.md`](monolith/README.md).
 
+## circuit
+
+A circular sequencer after Google's *Racer* with Giorgio Moroder: six concentric lanes, a car on each, and a lane
+plays when its car drives over a **stop sign**. Each lane has its own lap length (polyrhythms), 64 positions per lap,
+step and live recording, 4 patterns, mutes; synth and drum mode. Details: [`circuit/README.md`](circuit/README.md).
+
+![circuit](demos/circuit_anim.gif)
+
 ## Layout
 
-    monolith/        the plugin: monolith.c, monolith.svg, plugin.json, long-render harness
+    monolith/        synth engine: monolith.c, monolith.svg, plugin.json, long-render harness
+    circuit/         sequencer: circuit.c, circuit.svg, plugin.json, host test + preview (test/)
     demos/           PC renders (mp3), spectrogram, screen preview and animation
-    release/         monolith.op1p, ready to install (op1r 34+, plugin API 1)
+    release/         monolith.op1p and circuit.op1p, ready to install (op1r 34+, plugin API 1)
     tools/           animated screen preview (make_anim.py)
     setup.sh         links the plugins into an op1r-src checkout
 
@@ -40,15 +49,16 @@ the live filter position, **white scratches** = rust, **red depth edge** of the 
     cd ../op1r-src/synth_sdk
     python3 harness/audio.py monolith            # sanitizer test -> WAV
     python3 harness/render.py monolith           # screen preview -> PNG
-    python3 make_plugin.py monolith              # -> build/plugins/monolith.op1p (bfin-elf toolchain)
+    python3 make_plugin.py monolith circuit      # -> build/plugins/*.op1p (bfin-elf toolchain)
+    python3 ../../OP-1_Monolith/circuit/test/render_circuit.py ..   # circuit host test + preview
 
 ## Installing on the OP-1
 
 With op1r 34 or newer, either:
 
-- **USB**: op1r web patcher, **Connect OP-1**, "own plugin files", pick `monolith.op1p`; the OP-1 asks for
+- **USB**: op1r web patcher, **Connect OP-1**, "own plugin files", pick the `.op1p` files; the OP-1 asks for
   confirmation (T1 restarts and applies), or
-- **firmware file**: add `monolith.op1p` under `plugins/` in an op1r `.op1` image and install it from te-boot
+- **firmware file**: add the `.op1p` files under `plugins/` in an op1r `.op1` image and install it from te-boot
   (hold COM while switching on) like any OP-1 update.
 
 ## License

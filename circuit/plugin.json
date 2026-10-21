@@ -1,0 +1,13 @@
+{
+  "name": "circuit",
+  "author": "Manuel Montanari",
+  "kind": "seq",
+  "symbol": "SEQ_circuit",
+  "sources": [
+    "circuit.c"
+  ],
+  "screen": {
+    "svg": "circuit.svg",
+    "symbol": "SCREEN_circuit"
+  }
+}
