@@ -460,7 +460,7 @@ int tr_parse_state(int pos, const char *s, int len)
 }
 
 /* ======================= screen (GUI thread) =======================
- * Left: the track, 6 concentric lanes around (80, 80), lane 1 the outer one; the start / finish line at the top
+ * Left: the track, 6 concentric lanes around (80, 70), lane 1 the outer one; the start / finish line at the top
  * (chequered); each lane's car where it is on its lap (stopped: parked on the start line, dim); stop signs on their
  * positions (selected lane: red octagons with the white band; other lanes: red dots), white for a moment when
  * played; the cursor (white, red while recording) across the selected lane.
@@ -468,8 +468,8 @@ int tr_parse_state(int pos, const char *s, int len)
  *   LANE n / POS p + the sign's note / LAP n (page 2: GATE x) / DRIVE or PARK (page 2: LVL n); bottom: P1..P4, REC.
  * The SVG (trackracer.svg) holds a divider only; everything else is raster lines (stroke text: seq_text.h). */
 #define TR_CX   80
-#define TR_CY   80
-static const uint8_t tr_r[TR_LANES] = { 74, 63, 52, 41, 30, 19 };
+#define TR_CY   70                                     /* the OP-1 hides the bottom rows: keep y <= ~138 */
+static const uint8_t tr_r[TR_LANES] = { 64, 54, 44, 34, 24, 15 };
 static const uint8_t tr_col[TR_LANES][4] = {            /* car colours: the encoder colours, then orange and violet */
     { 0x4D, 0x9E, 0xFF, 0xFF }, { 0x00, 0xED, 0x95, 0xFF }, { 0xFF, 0xFF, 0xFF, 0xFF },
     { 0xFF, 0x3A, 0x5D, 0xFF }, { 0xFF, 0x9A, 0x3C, 0xFF }, { 0xB9, 0x8C, 0xFF, 0xFF } };
@@ -566,7 +566,7 @@ static void tr_screen_draw(void *r, int pos)
             px = qx; py = qy;
         }
         /* stop signs; white for 1/16 beat after they play */
-        int32_t rs = OP1_Q10(sel ? 2.6 : 2.1) + (int32_t)((int64_t)OP1_Q10(1.1) * (tr_r[k] - 19) / 55);
+        int32_t rs = OP1_Q10(sel ? 2.6 : 2.1) + (int32_t)((int64_t)OP1_Q10(1.1) * (tr_r[k] - 15) / 49);
         for (int i = 0; i < TR_POS; i++) if (l->key[i] != TR_EMPTY) {
             int32_t x, y; tr_pt(i * 8192 / TR_POS, rad, &x, &y);
             int lit = car->hit == i && (uint32_t)(now >> 16) - car->hit_tick < TR_PPQN / 4;
@@ -596,7 +596,7 @@ static void tr_screen_draw(void *r, int pos)
     char t[24], *p;
     int32_t X = OP1_Q10(186), S = OP1_Q10(1.7), W = 0x400;
     for (int k = 0; k < 4; k++) {
-        int32_t y = OP1_Q10(14 + k * 26);
+        int32_t y = OP1_Q10(8 + k * 24);
         sq_dot(r, OP1_Q10(178), y + OP1_Q10(5), 0x1600, tr_knob[k]);
         if (b->page[k]) sq_line(r, OP1_Q10(172), y, OP1_Q10(172), y + OP1_Q10(10), 0x300, tr_knob[k]);   /* page 2 */
         p = t;
@@ -623,11 +623,11 @@ static void tr_screen_draw(void *r, int pos)
         int n = 0;
         for (int i = 0; i < TR_POS; i++) n += l->key[i] != TR_EMPTY;
         p = sq_num(t, (uint32_t)n, 0); sq_cat(p, n == 1 ? " STOP" : " STOPS");
-        sq_text(r, OP1_Q10(178), OP1_Q10(120), OP1_Q10(1.4), t, 0x380, tr_grey);
+        sq_text(r, OP1_Q10(178), OP1_Q10(104), OP1_Q10(1.4), t, 0x380, tr_grey);
     }
     t[0] = 'P'; t[1] = (char)('1' + b->pat); t[2] = 0;
-    sq_text(r, OP1_Q10(178), OP1_Q10(140), OP1_Q10(1.7), t, W, tr_white);
-    if (b->rec) sq_text(r, OP1_Q10(236), OP1_Q10(140), OP1_Q10(1.7), car->running ? "LIVE" : "REC", W, tr_red);
+    sq_text(r, OP1_Q10(178), OP1_Q10(122), OP1_Q10(1.7), t, W, tr_white);
+    if (b->rec) sq_text(r, OP1_Q10(236), OP1_Q10(122), OP1_Q10(1.7), car->running ? "LIVE" : "REC", W, tr_red);
 }
 
 static void tr_screen_update(void *scr, int dt, int pos)
