@@ -1,0 +1,16 @@
+{
+  "name": "monolith",
+  "author": "Manuel Montanari",
+  "kind": "synth",
+  "order": 99,
+  "symbol": "ENGINE_monolith",
+  "sources": [
+    "monolith.c"
+  ],
+  "defaults": [
+    11000,
+    16000,
+    9000,
+    18000
+  ]
+}
