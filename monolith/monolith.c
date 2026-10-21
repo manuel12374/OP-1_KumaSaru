@@ -200,6 +200,7 @@ static const uint8_t SC_SLAB[4]  = { 0xDF, 0xD9, 0xFF, 0xFF };
 static const uint8_t SC_KNOB[4][4] = { { 0x4D, 0x9E, 0xFF, 0xFF }, { 0x00, 0xED, 0x95, 0xFF },
                                        { 0xFF, 0xFF, 0xFF, 0xFF }, { 0xFF, 0x3A, 0x5D, 0xFF } };
 static const uint8_t SC_MOON[4]  = { 0xAE, 0xB1, 0xDC, 0xFF };
+static const uint8_t SC_GREY[4]  = { 0x6F, 0x71, 0x73, 0xFF };
 
 /* hominids: side (-1 left, +1 right), feet line, scale (Q10) */
 static const int8_t  HM_SIDE[4]  = { -1, -1, 1, 1 };
@@ -343,15 +344,20 @@ static void mono_screen_update(void *scr, int dt)
         if (al) { sc_dim(c, SC_SLAB, 120); sc_line(r, OP1_Q10(SC_CX), OP1_Q10(4), OP1_Q10(SC_CX), yt - OP1_Q10(3), 0x300, c); }
     }
 
-    /* red echo of the slab: the detuned saws drifting apart */
+    /* red echo of the slab: the detuned saws drifting apart (its depth, d = 0 below 512) */
+    int32_t d = 0;
     if (thick > 512) {
-        int32_t d = OP1_Q10(1) + (int32_t)(((int64_t)OP1_Q10(4) * thick) >> 15)
+        d = OP1_Q10(1) + (int32_t)(((int64_t)OP1_Q10(4) * thick) >> 15)
                   + (int32_t)(((((int64_t)OP1_Q10(2) * ssin((int32_t)(lf[1] >> 19))) >> 15) * mov) >> 15);
         if (d < OP1_Q10(1)) d = OP1_Q10(1);
         sc_dim(c, SC_KNOB[3], 60 + (thick * 110 >> 15));
         sc_line(r, xl + d, yt - d, xr + d, yt - d, 0x400, c);
         sc_line(r, xr + d, yt - d, xr + d, yb - d, 0x400, c);
     }
+
+    /* the horizon, interrupted by the slab and its depth: the monolith is solid */
+    sc_line(r, OP1_Q10(8), OP1_Q10(SC_HORIZON) + 512, xl - 512, OP1_Q10(SC_HORIZON) + 512, 0x400, SC_GREY);
+    sc_line(r, xr + d + 512, OP1_Q10(SC_HORIZON) + 512, OP1_Q10(312), OP1_Q10(SC_HORIZON) + 512, 0x400, SC_GREY);
 
     /* the slab */
     sc_dim(c, SC_SLAB, 150 + (sc_act * 106 >> 10));
@@ -385,12 +391,12 @@ static void mono_screen_update(void *scr, int dt)
                                       : (HM_SIDE[i] < 0 ? OP1_Q10(24) : OP1_Q10(296));
         int32_t tgt = far + (int32_t)(((int64_t)(edge - far) * k[i]) >> 15);
         if (!hm_init) hm_x[i] = tgt;
-        int32_t d = tgt - hm_x[i], step = OP1_Q10(1.4);
-        if (d > step) d = step;
-        if (d < -step) d = -step;
-        hm_x[i] += d;
-        hm_ph[i] += (d < 0 ? -d : d) * 8;                  /* one stride per ~8 px (phase >> 3 indexes the table) */
-        hm_mv[i] = d != 0 ? hm_mv[i] + ((1024 - hm_mv[i]) >> 1) : hm_mv[i] - (hm_mv[i] >> 2);
+        int32_t st = tgt - hm_x[i], step = OP1_Q10(1.4);
+        if (st > step) st = step;
+        if (st < -step) st = -step;
+        hm_x[i] += st;
+        hm_ph[i] += (st < 0 ? -st : st) * 8;               /* one stride per ~8 px (phase >> 3 indexes the table) */
+        hm_mv[i] = st != 0 ? hm_mv[i] + ((1024 - hm_mv[i]) >> 1) : hm_mv[i] - (hm_mv[i] >> 2);
     }
     hm_init = 1;
     /* back row first, then the front row */

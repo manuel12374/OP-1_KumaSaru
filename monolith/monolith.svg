@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
 	 width="320px" height="160px" viewBox="0 0 320 160">
-<!-- monolith: horizon and a few rocks; slab, moons, scan line, rust, echo and hominids are drawn by monolith.c -->
-<line id="horizon" fill="none" stroke="#6F7173" stroke-width="1" x1="8" y1="110.5" x2="312" y2="110.5"/>
+<!-- monolith: a few rocks; horizon (interrupted by the slab), slab, moons, scan line, rust, echo and hominids are drawn by monolith.c -->
 <polyline fill="none" stroke="#6F7173" stroke-width="1" stroke-linejoin="round" points="16,110.5 26,103 34,106 44,98 58,110.5"/>
 <polyline fill="none" stroke="#6F7173" stroke-width="1" stroke-linejoin="round" points="250,110.5 262,100 270,104 284,95 300,110.5"/>
 <polyline fill="none" stroke="#4A4C4E" stroke-width="1" stroke-linejoin="round" points="96,141 100,137 106,138 109,141"/>
