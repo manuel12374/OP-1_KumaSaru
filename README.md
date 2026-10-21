@@ -1,51 +1,58 @@
 # OP-1 Monolith
 
-Synth engine personali per il **Teenage Engineering OP-1 originale** con firmware [op1r](https://github.com/pcppcp/op1r)
-(R246), scritti con il synth SDK di [op1r-src](https://github.com/pcppcp/op1r-src).
+Custom synth engines for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
+firmware (R246), written with the synth SDK from [op1r-src](https://github.com/pcppcp/op1r-src).
 
 ## monolith
 
-Engine drone techno / industrial: tappeti lunghi che non si ripetono mai, per basi techno e progressive.
+A techno / industrial drone engine: long pads that never repeat, for techno and progressive tracks.
 
-| manopola | nome | cosa fa |
+| knob | name | what it does |
 |---|---|---|
-| blu | colore | apertura del filtro, da cupo a brillante (key tracking 50%) |
-| verde | movimento | quanto e quanto in fretta il drone evolve (0 = fermo) |
-| bianco | ruggine | ring mod inarmonico, wavefolder, soffio |
-| rosso | spessore | detune dei 3 saw e livello del sub |
+| blue | tone | filter opening, from dark to bright (50 % key tracking) |
+| green | motion | how much and how fast the drone evolves (0 = static) |
+| white | rust | inharmonic ring mod, wavefolder, hiss |
+| red | thickness | detune of the 3 saws and sub level |
 
-### Schermata
+### Screen
 
-Ispirata a *2001: Odissea nello spazio*: un monolito (proporzioni 4:9) al centro e **quattro ominidi**, uno per manopola
-nel suo colore. Più alto il valore, più l'ominide si avvicina al monolito; al massimo lo **tocca**. Blu e verde a
-sinistra, bianco e rosso a destra. Il resto segue lo stato reale del drone: **tre lune** = i tre LFO lenti (ogni tanto si
-allineano sopra il monolito), **linea blu** = posizione reale del filtro, **scalfitture bianche** = ruggine, **profondità
-rossa** del monolito = detune.
+Inspired by *2001: A Space Odyssey*: a monolith (4:9 proportions) in the middle and **four hominids**, one per knob
+in its colour. The higher the value, the closer the hominid walks to the monolith; at the top of the range it
+**touches** it. Blue and green stand on the left, white and red on the right. Everything else follows the drone's
+live state: **three moons** = the three slow LFOs (now and then they line up above the monolith), **blue line** =
+the live filter position, **white scratches** = rust, **red depth edge** of the monolith = detune.
 
-![animazione](demos/screen_anim.gif)
+![animation](demos/screen_anim.gif)
 
-Demo audio da 90 s (manopole ferme): [`demos/`](demos/). Dettagli tecnici: [`monolith/README.md`](monolith/README.md).
+90-second audio demos (knobs untouched): [`demos/`](demos/). Technical details: [`monolith/README.md`](monolith/README.md).
 
-## Struttura
+## Layout
 
-    monolith/        il plugin: monolith.c, plugin.json, harness per render lunghi
-    demos/           render sul PC (mp3) e spettrogramma
-    release/         monolith.op1p pronto da installare (op1r 34+, API 1)
-    tools/           anteprima animata della schermata (make_anim.py)
-    setup.sh         collega i plugin a un checkout di op1r-src
+    monolith/        the plugin: monolith.c, monolith.svg, plugin.json, long-render harness
+    demos/           PC renders (mp3), spectrogram, screen preview and animation
+    release/         monolith.op1p, ready to install (op1r 34+, plugin API 1)
+    tools/           animated screen preview (make_anim.py)
+    setup.sh         links the plugins into an op1r-src checkout
 
-## Sviluppo
+## Development
 
-    ./setup.sh                                   # clona op1r-src accanto e collega i plugin
+    ./setup.sh                                   # clones op1r-src next to this repo and links the plugins
     cd ../op1r-src/synth_sdk
-    python3 harness/audio.py monolith            # test con sanitizers -> WAV
-    python3 make_plugin.py monolith              # -> build/plugins/monolith.op1p (toolchain bfin-elf)
+    python3 harness/audio.py monolith            # sanitizer test -> WAV
+    python3 harness/render.py monolith           # screen preview -> PNG
+    python3 make_plugin.py monolith              # -> build/plugins/monolith.op1p (bfin-elf toolchain)
 
-Installazione sull'OP-1 (op1r 34 o successivo): web patcher di op1r, sezione **Connect OP-1**, "own plugin files",
-scegli `monolith.op1p`; l'OP-1 chiede conferma (T1 riavvia e applica).
+## Installing on the OP-1
 
-## Licenza
+With op1r 34 or newer, either:
 
-GPL-3.0-or-later, con il permesso aggiuntivo di op1r per combinarlo con il firmware dell'OP-1 (vedi
-[NOTICE di op1r-src](https://github.com/pcppcp/op1r-src/blob/main/NOTICE)). Progetto indipendente, non affiliato a
-Teenage Engineering. OP-1 è un marchio di Teenage Engineering AB.
+- **USB**: op1r web patcher, **Connect OP-1**, "own plugin files", pick `monolith.op1p`; the OP-1 asks for
+  confirmation (T1 restarts and applies), or
+- **firmware file**: add `monolith.op1p` under `plugins/` in an op1r `.op1` image and install it from te-boot
+  (hold COM while switching on) like any OP-1 update.
+
+## License
+
+GPL-3.0-or-later, with op1r's additional permission to combine it with the OP-1 firmware (see
+[op1r-src NOTICE](https://github.com/pcppcp/op1r-src/blob/main/NOTICE)). Independent project, not affiliated with
+Teenage Engineering. OP-1 is a trademark of Teenage Engineering AB.

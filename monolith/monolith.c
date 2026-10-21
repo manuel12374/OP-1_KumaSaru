@@ -1,16 +1,16 @@
 /* monolith: a techno / industrial drone engine for long, never-repeating pads.
  *
- *   blue  : colore     filter base cutoff (dark .. bright), with half key tracking
- *   green : movimento  how much and how fast the drone evolves (0 = static)
- *   white : ruggine    rust: inharmonic ring mod, wavefolder and hiss (clean .. industrial)
- *   red   : spessore   thickness: detune spread of the 3 saws and sub-octave level
+ *   blue  : tone       filter base cutoff (dark .. bright), with half key tracking
+ *   green : motion     how much and how fast the drone evolves (0 = static)
+ *   white : rust       inharmonic ring mod, wavefolder and hiss (clean .. industrial)
+ *   red   : thickness  detune spread of the 3 saws and sub-octave level
  *
  * Signal per voice: 3 saws (root, +spread, -spread) + square one octave down -> ring mod with a sine at a
  * drifting non-integer ratio -> wavefolder -> + noise -> resonant state-variable low-pass -> soft clip.
  *
  * Why it never repeats: the cutoff, the resonance, the beating speed of the detuned saws, the ring ratio and a
  * tiny pitch drift are driven by three slow sine LFOs with incommensurate periods (about 23.7 s, 37.1 s and
- * 61.3 s at movimento 37 %, faster above, slower below) plus three random walks that pick a new target at random intervals and glide to it.
+ * 61.3 s at motion 37 %, faster above, slower below) plus three random walks that pick a new target at random intervals and glide to it.
  * The modulation state lives in a static array per voice, so it keeps running across notes: a drone played
  * again does not restart from the same point.
  *
@@ -73,11 +73,11 @@ static void mono_render(void *self, int16_t *out, const int16_t *params)
 {
     mono_voice_t *v = &mv[op1_voice_index(self)];
     const int32_t *inc = OP1_PITCH_INC;
-    const int32_t colore = params[0], mov = params[1], rust = params[2], thick = params[3];
+    const int32_t tone = params[0], mov = params[1], rust = params[2], thick = params[3];
     const uint32_t inc0 = (uint32_t)inc[0];
 
     /* ---- per block: modulation (about 345 blocks per second) ---- */
-    /* LFO rates scale with movimento: 0.25x .. 2.25x (Q13 factor 2048 .. 18432) */
+    /* LFO rates scale with motion: 0.25x .. 2.25x (Q13 factor 2048 .. 18432) */
     uint32_t rate = 2048u + ((uint32_t)mov >> 1);
     static const uint32_t LFO_BASE[3] = { 525600u, 335800u, 203200u };   /* 23.7 s, 37.1 s, 61.3 s at 1x */
     int32_t l[3];
@@ -85,7 +85,7 @@ static void mono_render(void *self, int16_t *out, const int16_t *params)
         v->lfo[i] += ((LFO_BASE[i] >> 5) * rate) >> 8;
         l[i] = sine_q15(v->lfo[i]);
     }
-    /* random walks: new target every 0.4 .. 6 s (sooner with more movimento), glide towards it */
+    /* random walks: new target every 0.4 .. 6 s (sooner with more motion), glide towards it */
     int32_t slew = 6 + (mov >> 8);                    /* Q15 per block: 6 .. 133 (glides of ~16 s .. ~0.7 s) */
     for (int i = 0; i < WALKS; i++) {
         if (--v->wnext[i] <= 0) {
@@ -95,11 +95,11 @@ static void mono_render(void *self, int16_t *out, const int16_t *params)
         }
         v->w[i] += ((v->wt[i] - v->w[i]) * slew) >> 15;
     }
-    int32_t depth = mov;                              /* modulation depth follows movimento */
+    int32_t depth = mov;                              /* modulation depth follows motion */
 
     /* cutoff: knob + half key tracking + LFO1 / walk 1, in knob units (0..32767 over 25 Hz .. 5 kHz) */
     int32_t oct = inc0 ? 31 - __builtin_clz(inc0) : 22;                 /* C2 (65 Hz) ~ 22 */
-    int32_t cc = colore + (oct - 22) * 2143;                             /* 4287 knob units = 1 octave */
+    int32_t cc = tone + (oct - 22) * 2143;                             /* 4287 knob units = 1 octave */
     int32_t cmod = (l[0] + v->w[0]) >> 1;                                /* -32768 .. 32767 */
     cc += (((cmod * 12000) >> 15) * depth) >> 15;                        /* up to +- 2.8 octaves at full mov */
     cc = clampi(cc, 0, 32767);
@@ -186,8 +186,8 @@ const op1_engine_t ENGINE_monolith = { mono_note_on, mono_render, 0,
  *   three moons    one per slow LFO (24 / 37 / 61 s), rising and setting across the sky; now and then they line
  *                  up over the monolith
  *   blue scan      a line across the slab at the live filter position (knob + LFO + walk + key tracking)
- *   white rust     scratches on the slab, more with ruggine
- *   red echo       a ghost outline of the slab drifting off it = the detuned saws (spessore)
+ *   white rust     scratches on the slab, more with rust
+ *   red echo       a ghost outline of the slab drifting off it = the detuned saws (thickness)
  *   the slab       hums brighter while a voice plays
  * Geometry in Q10 px (320 x 160). The GUI thread may use 64-bit math and division (not the audio rules). */
 #define SC_HORIZON 110
