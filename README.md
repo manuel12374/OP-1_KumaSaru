@@ -48,7 +48,7 @@ scale. 8-bit arcade look. Details: [`leapfrog/README.md`](leapfrog/README.md).
     trackracer/         sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
     demos/           PC renders (mp3), spectrogram, screen preview and animation
     release/         monolith.op1p, track_racer.op1p and leapfrog.op1p, ready to install (op1r 34+, plugin API 1)
-    tools/           animated screen preview (make_anim.py)
+    tools/           firmware bundle (make_bundle.py), animated monolith preview (make_anim.py)
     setup.sh         links the plugins into an op1r-src checkout
 
 ## Development
@@ -59,6 +59,17 @@ scale. 8-bit arcade look. Details: [`leapfrog/README.md`](leapfrog/README.md).
     python3 harness/render.py monolith           # screen preview -> PNG
     python3 make_plugin.py monolith "track racer" leapfrog      # -> build/plugins/*.op1p (bfin-elf toolchain)
     python3 ../../OP-1_Monolith/trackracer/test/render_trackracer.py ..   # track racer host test + preview
+
+## Firmware bundles
+
+Bundles are named `op1r44_SceriffoRosso_<version>.op1`: op1r 44 with all its official plugins (every file
+byte-identical) plus every plugin in `release/`:
+
+    python3 tools/make_bundle.py <version> <op1r 44 .op1> <op1r checkout> [out dir]
+
+| version | contents |
+|---|---|
+| 0.3 | monolith (2001 screen), Track Racer V1.2, Leapfrog V1.0 |
 
 ## Installing on the OP-1
 
