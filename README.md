@@ -3,44 +3,26 @@
 A suite of custom synth engines and sequencers for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
 firmware (R246), written with the synth SDK from [op1r-src](https://github.com/pcppcp/op1r-src).
 
+| | name | what it is |
+|---|---|---|
+| synth | [Monolith](monolith/README.md) | techno / industrial drone engine, 2001 screen |
+| synth | [AirGuitar](airguitar/README.md) | six strings strummed by moving the OP-1 (accelerometer) |
+| sequencer | [Track Racer](trackracer/README.md) | circular sequencer: cars on six lanes with their own lap |
+| sequencer | [Star-Roll](starroll/README.md) | random note generator with ranges on LED gauges and a star field |
+| sequencer | [Modulo](modulo/README.md) | polyrhythmic step sequencer: 8 tracks with their own length and step size |
+
+# Synths
+
+Synth engines, chosen like the built-in ones (op1r 44).
+
 ## Monolith
 
-A techno / industrial drone engine: long pads that never repeat, for techno and progressive tracks.
+A techno / industrial drone engine: long pads that never repeat, for techno and progressive tracks. TONE, MOTION,
+RUST and THICKNESS on the four knobs; three slow LFOs with incommensurate periods and three random walks keep it
+moving. The screen is after *2001: A Space Odyssey*: four hominids (one per knob) walk up to the monolith as the
+values rise, and three moons are the live LFOs. Details: [`monolith/README.md`](monolith/README.md).
 
-| knob | name | what it does |
-|---|---|---|
-| blue | tone | filter opening, from dark to bright (50 % key tracking) |
-| green | motion | how much and how fast the drone evolves (0 = static) |
-| white | rust | inharmonic ring mod, wavefolder, hiss |
-| red | thickness | detune of the 3 saws and sub level |
-
-### Screen
-
-Inspired by *2001: A Space Odyssey*: a monolith (4:9 proportions) in the middle and **four hominids**, one per knob
-in its colour. The higher the value, the closer the hominid walks to the monolith; at the top of the range it
-**touches** it. Blue and green stand on the left, white and red on the right. Everything else follows the drone's
-live state: **three moons** = the three slow LFOs (now and then they line up above the monolith), **blue line** =
-the live filter position, **white scratches** = rust, **red depth edge** of the monolith = detune.
-
-![animation](demos/screen_anim.gif)
-
-90-second audio demos (knobs untouched): [`demos/`](demos/). Technical details: [`monolith/README.md`](monolith/README.md).
-
-## Track Racer
-
-A circular sequencer after Google's *Racer* with Giorgio Moroder: six concentric lanes, a car on each, and a lane
-plays when its car drives over a **stop sign**. Each lane has its own lap length (polyrhythms), 64 positions per lap,
-step and live recording, 4 patterns, mutes; synth and drum mode. Details: [`trackracer/README.md`](trackracer/README.md).
-
-![Track Racer](demos/trackracer_anim.gif)
-
-## Star-Roll
-
-A random note generator: eight ranges (rate, gate, pitch, leap, velocity, rests, phrase memory, chords) on LED gauges,
-in a scale, and in the middle a star field where every note played becomes a star scrolling from right to left
-(height = pitch, size = velocity, trail = length, red = from the memory). Details: [`starroll/README.md`](starroll/README.md).
-
-![Star-Roll](demos/starroll_anim.gif)
+![Monolith](demos/monolith_anim.gif)
 
 ## AirGuitar
 
@@ -52,22 +34,45 @@ player, the 1st string at the bottom. Details: [`airguitar/README.md`](airguitar
 
 ![AirGuitar](demos/airguitar_anim.gif)
 
+# Sequencers
+
+Extra sequencers, chosen like the built-in ones (endless, tombola…) and the op1r ones (euclid…). They work in synth
+and drum mode and use op1r-style Shift + key shortcuts (start / stop and more: see each page).
+
+## Track Racer
+
+A circular sequencer after Google's *Racer* with Giorgio Moroder: six concentric lanes, a car on each, and a lane
+plays when its car drives over a **stop sign**. Each lane has its own lap length (polyrhythms), 64 positions per lap,
+step and live recording, 4 patterns, mutes. Details: [`trackracer/README.md`](trackracer/README.md).
+
+![Track Racer](demos/trackracer_anim.gif)
+
+## Star-Roll
+
+A random note generator: eight ranges (rate, gate, pitch, leap, velocity, rests, phrase memory, chords) on LED gauges,
+in a scale, and in the middle a star field where every note played becomes a star scrolling from right to left
+(height = pitch, size = velocity, trail = length, red = from the memory). Details: [`starroll/README.md`](starroll/README.md).
+
+![Star-Roll](demos/starroll_anim.gif)
+
 ## Modulo
 
 A polyrhythmic step sequencer: eight tracks of steps, each with its own length (1–32) and step size (1/32 to 1/4,
 triplets), so the rows drift against each other; accents, volume and mute per track, 4 patterns, step and live
-recording; synth and drum mode. Details: [`modulo/README.md`](modulo/README.md).
+recording. Details: [`modulo/README.md`](modulo/README.md).
 
 ![Modulo](demos/modulo_anim.gif)
 
+# The project
+
 ## Layout
 
-    monolith/        synth engine: monolith.c, monolith.svg, plugin.json, long-render harness
+    monolith/        synth: monolith.c, monolith.svg, plugin.json, long-render harness
+    airguitar/       synth: airguitar.c, airguitar.svg, plugin.json, host test + preview + demo (test/)
     trackracer/      sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
     starroll/        sequencer: starroll.c, starroll.svg, plugin.json, host test + preview (test/)
     modulo/          sequencer: modulo.c, modulo.svg, plugin.json, host test + preview (test/)
-    airguitar/       synth engine: airguitar.c, airguitar.svg, plugin.json, host test + preview + demo (test/)
-    demos/           PC renders (mp3), spectrogram, screen preview and animation
+    demos/           screen previews and animations, audio renders (mp3), monolith spectrogram
     release/         monolith.op1p, track_racer.op1p, star-roll.op1p, airguitar.op1p, modulo.op1p, ready to install (op1r 34+;
                      airguitar needs op1r 44 for its 8-step guitar knob)
     tools/           firmware bundle (make_bundle.py), animated monolith preview (make_anim.py)

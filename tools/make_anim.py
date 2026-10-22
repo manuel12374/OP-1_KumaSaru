@@ -5,7 +5,7 @@ Needs cairocffi and Pillow; uses op1r-src's harness/render.py to draw each frame
 import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, '..', 'op1r-src')
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(REPO, 'demos', 'screen_anim.gif')
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(REPO, 'demos', 'monolith_anim.gif')
 SDK = os.path.join(SRC, 'synth_sdk'); sys.path.insert(0, os.path.join(SDK, 'harness'))
 import render                                                   # draw_svg, STYLES, cairo
 from PIL import Image
