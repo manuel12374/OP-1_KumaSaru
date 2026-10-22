@@ -71,6 +71,7 @@ byte-identical) plus every plugin in `release/`:
 |---|---|
 | 0.3 | monolith (2001 screen), Track Racer V1.2, Leapfrog V1.0 |
 | 0.4 | monolith, Track Racer V1.2, Star-Roll V1.0 (replaces Leapfrog) |
+| 0.5 | Star-Roll V1.1: AIR and MEM are ranges like the others; phrase length on Shift + lift |
 
 ## Installing on the OP-1
 

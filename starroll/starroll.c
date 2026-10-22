@@ -9,16 +9,16 @@
  *   JUMP  Shift green   leap from one note to the next, in scale steps 0 .. 12 (up or down at random, reflected at the
  *                       edges of the NOTE range): small = walking melodies, large = jumpy
  *   VEL   white         velocity 1 .. 127
- *   AIR   Shift white   chance of a rest, 0 .. 100 % (a single value)
+ *   AIR   Shift white   chance of a rest, 0 .. 100 % (each note draws its chance inside the range)
  *   MEM   red           memory, 0 .. 100 %: the chance that a note repeats the one the phrase had at this place
- *                       (100 % = a loop, 0 % = always new); press: phrase length 4 8 16 32 notes
+ *                       (100 % = a loop, 0 % = always new); each note draws its chance inside the range
  *   POLY  Shift red     notes per hit 1 .. 4 (chords: stacked thirds of the scale)
  * Encoders: turn moves the range (its centre, the "target"); press toggles width editing for that parameter, where the
  * turn makes the range longer / shorter around its centre. Shift + turn / press works on the Shift parameter.
  * Keys on the star-roll screen:
  *   note key        root of the scale (the key also sounds; drum mode: the scale picks the drum pads)
  *   drop            next scale (MAJ MIN DOR PHR PEN+ PEN-); Shift + drop: previous
- *   lift            start / stop
+ *   lift            start / stop; Shift + lift: phrase length of the memory 4 8 16 32 notes
  *   scissors        new phrase: forget the memory
  * Any screen while star-roll is the mode's sequencer: Shift + F G A B pattern 1..4 (all parameters + scale), Shift + C#
  * start / stop (with REC held: also starts the tape).
@@ -30,7 +30,7 @@
 #include "op1_synth.h"
 #include "seq/seq_text.h"
 
-#define SR_VERSION "V1.0"
+#define SR_VERSION "V1.1"
 #define SR_STARS   64                                    /* star field: the last notes played */
 #define SR_ROWS    8
 #define SR_PATS    4
@@ -41,16 +41,16 @@ enum { R_RATE, R_GATE, R_NOTE, R_JUMP, R_VEL, R_AIR, R_MEM, R_POLY };
 #define SR_NLEN    11
 static const uint16_t sr_len[SR_NLEN] = { 6, 12, 24, 48, 96, 192, 384, 768, 1536, 3072, 6144 };   /* ticks: 1/64 .. 16 bars */
 static const char *const sr_len_names[SR_NLEN] = { "1/64", "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8", "16" };
-typedef struct { uint8_t min, max, step, single; uint8_t dlo, dhi; } sr_spec_t;
+typedef struct { uint8_t min, max, step; uint8_t dlo, dhi; } sr_spec_t;
 static const sr_spec_t sr_spec[SR_ROWS] = {
-    { 0, SR_NLEN - 1, 1, 0,  2,  3 },                    /* RATE 1/16 .. 1/8 */
-    { 0, SR_NLEN - 1, 1, 0,  1,  3 },                    /* GATE 1/32 .. 1/8 */
-    { 24, 96, 1, 0, 48, 72 },                            /* NOTE C3 .. C5 */
-    { 0, 12, 1, 0, 0, 3 },                               /* JUMP 0 .. 3 scale steps */
-    { 1, 127, 4, 0, 70, 110 },                           /* VEL */
-    { 0, 100, 5, 1, 0, 20 },                             /* AIR 20 % */
-    { 0, 100, 5, 1, 0, 75 },                             /* MEM 75 % */
-    { 1, 4, 1, 0, 1, 1 } };                              /* POLY 1 */
+    { 0, SR_NLEN - 1, 1,  2,  3 },                    /* RATE 1/16 .. 1/8 */
+    { 0, SR_NLEN - 1, 1,  1,  3 },                    /* GATE 1/32 .. 1/8 */
+    { 24, 96, 1, 48, 72 },                            /* NOTE C3 .. C5 */
+    { 0, 12, 1, 0, 3 },                               /* JUMP 0 .. 3 scale steps */
+    { 1, 127, 4, 70, 110 },                           /* VEL */
+    { 0, 100, 5, 10, 30 },                            /* AIR 10 .. 30 % */
+    { 0, 100, 5, 60, 90 },                            /* MEM 60 .. 90 % */
+    { 1, 4, 1, 1, 1 } };                              /* POLY 1 */
 #define SR_NMODES  6
 static const uint8_t sr_mode_len[SR_NMODES] = { 7, 7, 7, 7, 5, 5 };
 static const uint8_t sr_modes[SR_NMODES][7] = { { 0, 2, 4, 5, 7, 9, 11 }, { 0, 2, 3, 5, 7, 8, 10 }, { 0, 2, 3, 5, 7, 9, 10 },
@@ -60,7 +60,7 @@ static const uint8_t sr_plens[4] = { 4, 8, 16, 32 };
 
 typedef struct { uint8_t lo[SR_ROWS], hi[SR_ROWS]; uint8_t root, mode, plen; } sr_pat_t;   /* saved */
 typedef struct {                                          /* one generated note (event) */
-    uint8_t rate, gate, vel, n, rest, air_r, mem_r, valid;
+    uint8_t rate, gate, vel, n, rest, air_r, mem_r, valid;   /* air_r / mem_r: the chances drawn for this note */
     int16_t deg;                                           /* scale degree (absolute: replays follow the scale) */
     int8_t  jump;                                          /* signed scale steps from the previous note */
 } sr_ev_t;
@@ -188,8 +188,8 @@ static sr_ev_t sr_new(sr_bank_t *b)
     e.gate = (uint8_t)sr_pick(b, p->lo[R_GATE], p->hi[R_GATE]);
     e.vel  = (uint8_t)sr_pick(b, p->lo[R_VEL], p->hi[R_VEL]);
     e.n    = (uint8_t)sr_pick(b, p->lo[R_POLY], p->hi[R_POLY]);
-    e.air_r = (uint8_t)(sr_rand(b) % 100);
-    e.rest = e.air_r < p->hi[R_AIR];
+    e.air_r = (uint8_t)sr_pick(b, p->lo[R_AIR], p->hi[R_AIR]);          /* this note's chance of a rest */
+    e.rest = (int)(sr_rand(b) % 100) < e.air_r;
     int dlo, dhi; sr_deg_range(p, &dlo, &dhi);
     int d;
     if (b->last_deg < 0) { d = sr_pick(b, dlo, dhi); e.jump = 0; }
@@ -215,9 +215,9 @@ static void sr_event(int pos, sr_bank_t *b, uint64_t t)
     int len = sr_plens[p->plen];
     if (b->mpos >= len) b->mpos = 0;
     sr_ev_t *slot = &b->mem[b->mpos];
-    uint8_t mem_r = (uint8_t)(sr_rand(b) % 100);
+    uint8_t mem_r = (uint8_t)sr_pick(b, p->lo[R_MEM], p->hi[R_MEM]);    /* this note's chance of the memory */
     sr_ev_t e;
-    int from_mem = slot->valid && mem_r < p->hi[R_MEM];
+    int from_mem = slot->valid && (int)(sr_rand(b) % 100) < mem_r;
     if (from_mem) e = *slot;
     else { e = sr_new(b); *slot = e; }
     e.mem_r = mem_r;
@@ -271,6 +271,14 @@ int sr_toggle(int pos)                                     /* returns 1 if it st
     sr_start(b); return 1;
 }
 void sr_all_off(int pos) { sr_off_all(pos & 1); }
+void sr_phrase_len(int pos)                                /* Shift + lift: memory phrase 4 8 16 32 notes */
+{
+    sr_bank_t *b = &sr[pos & 1];
+    sr_bank_init(b);
+    sr_pat_t *p = sr_cur(b);
+    p->plen = (uint8_t)((p->plen + 1) % 4);
+    SR_CHANGED();
+}
 void sr_forget(int pos)                                    /* scissors: a new phrase */
 {
     sr_bank_t *b = &sr[pos & 1];
@@ -320,8 +328,7 @@ void sr_press(int pos, int knob, int shift)
     sr_bank_init(b);
     if (knob < 0 || knob > 3) return;
     int r = 2 * knob + (shift != 0);
-    if (r == R_MEM) { sr_pat_t *p = sr_cur(b); p->plen = (uint8_t)((p->plen + 1) % 4); SR_CHANGED(); return; }
-    if (!sr_spec[r].single) b->width[r] ^= 1;
+    b->width[r] ^= 1;
 }
 void sr_turn(int pos, int knob, int delta, int shift)
 {
@@ -337,8 +344,7 @@ void sr_turn(int pos, int knob, int delta, int shift)
     const sr_spec_t *s = &sr_spec[r];
     sr_pat_t *p = sr_cur(b);
     int lo = p->lo[r], hi = p->hi[r], d = st * s->step;
-    if (s->single) hi = sr_clamp(hi + d, s->min, s->max);
-    else if (b->width[r]) {                                /* width around the centre */
+    if (b->width[r]) {                                /* width around the centre */
         int c2 = lo + hi, w = sr_clamp(hi - lo + d, 0, s->max - s->min);
         lo = (c2 - w + (d > 0 ? 0 : 1)) / 2; hi = lo + w;
         if (lo < s->min) { hi += s->min - lo; lo = s->min; }
@@ -400,8 +406,8 @@ int sr_parse(int pos, const char *s, int len)
 
 /* ======================= screen (GUI thread) =======================
  * Top: LED gauges RATE NOTE VEL MEM; bottom: GATE JUMP AIR POLY (the Shift parameters, lighter colours). A gauge is an
- * arc of 11 segments over the parameter's whole scale: lit in the parameter's colour = the range (single values: from
- * zero), white = the value drawn for the latest note (ranges: always inside the range shown); name inside, values
+ * arc of 11 segments over the parameter's whole scale: lit in the parameter's colour = the range, white = the value
+ * drawn for the latest note (always inside the range shown; AIR / MEM: the chance drawn); name inside, values
  * below; width editing: the baseline in colour with arrows at its ends.
  * Middle: the star field, 2 bars wide, scrolling right to left at the tempo: a star per note played, born at the right
  * edge when it sounds. Height = pitch inside the NOTE range of that moment (it keeps it when the range changes later);
@@ -449,8 +455,9 @@ static void sr_value_text(char *t, const sr_bank_t *b, int r)
     case R_RATE: case R_GATE:
         o = sq_cat(o, sr_len_names[lo]); if (hi != lo) { o = sq_cat(o, "-"); o = sq_cat(o, sr_len_names[hi]); } break;
     case R_NOTE: o = sr_note_name(o, lo); if (hi != lo) { o = sq_cat(o, "-"); o = sr_note_name(o, hi); } break;
-    case R_AIR:  o = sq_cat(sq_num(o, (uint32_t)hi, 0), "%"); break;
-    case R_MEM:  o = sq_cat(sq_num(o, (uint32_t)hi, 0), "% L"); o = sq_num(o, sr_plens[p->plen], 0); break;
+    case R_AIR:  o = sq_num(o, (uint32_t)lo, 0); if (hi != lo) { o = sq_cat(o, "-"); o = sq_num(o, (uint32_t)hi, 0); } sq_cat(o, "%"); break;
+    case R_MEM:  o = sq_num(o, (uint32_t)lo, 0); if (hi != lo) { o = sq_cat(o, "-"); o = sq_num(o, (uint32_t)hi, 0); }
+                 o = sq_cat(o, "% L"); o = sq_num(o, sr_plens[p->plen], 0); break;
     default:     o = sq_num(o, (uint32_t)lo, 0); if (hi != lo) { o = sq_cat(o, "-"); o = sq_num(o, (uint32_t)hi, 0); }
     }
 }
@@ -499,12 +506,12 @@ static void sr_screen_update(void *scr, int dt, int pos)
     for (int k = 0; k < SR_ROWS; k++) {
         int row = (k % 4) * 2 + k / 4;                     /* k 0..3 top (normal), 4..7 bottom (Shift) */
         const sr_spec_t *s = &sr_spec[row];
-        int lo = s->single ? s->min : p->lo[row], hi = p->hi[row];
+        int lo = p->lo[row], hi = p->hi[row];
         int32_t last = -1;
-        if (e->valid) last = sr_norm(row, s->single ? sr_clamp(lastv[row], s->min, s->max) : sr_clamp(lastv[row], lo, hi));
+        if (e->valid) last = sr_norm(row, sr_clamp(lastv[row], lo, hi));      /* always inside the range shown */
         sr_value_text(t, b, row);
         sr_gauge(r, 40 + (k % 4) * 80, k < 4 ? 27 : 125, row, sr_norm(row, lo), sr_norm(row, hi), last,
-                 !s->single && b->width[row], t);
+                 b->width[row], t);
     }
 
     /* ---- star field ---- */
@@ -616,7 +623,7 @@ const op1_screen_t SCREEN_starroll = { sr_screen_init, sr_scr_update };
 /* plugin interface (docs/44): lift start / stop, drop scale (Shift: back), scissors new phrase, presses, turns */
 static int sr_pkey(int m, int code, int pressed, int knob, int shift)
 {
-    if (code == 0x0A) { if (pressed) sr_toggle(m); return 1; }
+    if (code == 0x0A) { if (pressed) { if (shift) sr_phrase_len(m); else sr_toggle(m); } return 1; }
     if (code == 0x0B) { if (pressed) sr_scale_step(m, shift ? -1 : 1); return 1; }
     if (code == 0x0C) { if (pressed) sr_forget(m); return 1; }
     if (knob >= 0) { if (pressed) sr_press(m, knob, shift); return 1; }

@@ -11,7 +11,7 @@ field** that scrolls from right to left: one star for every note played, a piano
 | RATE | blue | time to the next note, 1/64 .. 16 bars |
 | NOTE | green | pitch range C1 .. C7, taken from the scale |
 | VEL | white | velocity 1 .. 127 |
-| MEM | red | memory: chance that a note repeats the phrase (100 % = a loop, 0 % = always new); press: phrase 4 / 8 / 16 / 32 |
+| MEM | red | memory: chance that a note repeats the phrase (100 % = a loop, 0 % = always new) |
 | GATE | Shift + blue | note length, 1/64 .. 16 bars |
 | JUMP | Shift + green | leap from one note to the next, 0 .. 12 scale steps (up or down; reflected at the range edges) |
 | AIR | Shift + white | chance of a rest, 0 .. 100 % |
@@ -20,7 +20,8 @@ field** that scrolls from right to left: one star for every note played, a piano
 **Turn** an encoder to move the range (its centre, the target). **Press** it to edit the width (the gauge's baseline
 lights up with `< >`): turning then makes the range longer or shorter around its centre. With Shift held, turn /
 press work on the Shift gauge. On a gauge, the lit segments are the range and the white one is the value drawn for
-the latest note (always inside the range shown).
+the latest note (always inside the range shown). AIR and MEM are ranges of chances too: each note draws its chance
+of a rest / of the memory inside the range (that is the white segment); whether it happened shows in the star field.
 
 ## Star field
 - one star per note, born at the right edge when it sounds; the field shows the last 2 bars
@@ -36,6 +37,7 @@ the latest note (always inside the range shown).
 | note key | root of the scale (drum mode: the scale picks the pads) |
 | drop / Shift + drop | next / previous scale: MAJ MIN DOR PHR PEN+ PEN- |
 | lift | start / stop |
+| Shift + lift | phrase length of the memory: 4 / 8 / 16 / 32 notes |
 | scissors | new phrase (forget the memory) |
 
 Any screen while star-roll is the sequencer: Shift + F G A B = pattern 1–4 (all parameters + scale), Shift + C# =

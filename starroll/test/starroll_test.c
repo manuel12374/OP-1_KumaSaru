@@ -101,11 +101,28 @@ int main(int argc, char **argv)
         sr_toggle(0);
     }
     /* AIR 100: no notes but the clock goes on; AIR 0: no rests */
-    { fresh(0); set(0, R_AIR, 0, 100); sr_toggle(0); run(0, BEAT * 4);
+    { fresh(0); set(0, R_AIR, 100, 100); sr_toggle(0); run(0, BEAT * 4);
       CHECK(n_on[0] == 0 && sr[0].count > 4, "AIR 100: %d notes, %u events", n_on[0], sr[0].count); sr_toggle(0); }
+    /* AIR / MEM are ranges: the chance drawn for each note stays inside them (the gauges' white segment); AIR 40..40
+     * gives ~40 % rests */
+    {
+        fresh(0); set(0, R_AIR, 10, 30); set(0, R_MEM, 60, 90); sr_toggle(0);
+        int ok = 1;
+        for (int i = 0; i < 400; i++) {
+            run(0, 2048);
+            const sr_ev_t *e = &sr[0].shown;
+            if (e->valid) ok &= e->air_r >= 10 && e->air_r <= 30 && e->mem_r >= 60 && e->mem_r <= 90;
+        }
+        CHECK(ok, "AIR / MEM chances drawn outside their ranges");
+        sr_toggle(0);
+        fresh(0); set(0, R_AIR, 40, 40); set(0, R_MEM, 0, 0); set(0, R_RATE, 2, 2); sr_toggle(0); run(0, BEAT * 64);
+        double rests = 1.0 - (double)n_on[0] / sr[0].count;
+        CHECK(rests > 0.3 && rests < 0.5, "AIR 40 %%: %.0f %% rests", rests * 100);
+        sr_toggle(0);
+    }
     /* MEM 100: the phrase loops with its length; MEM 0: keeps drawing */
     {
-        fresh(0); set(0, R_AIR, 0, 0); set(0, R_MEM, 0, 100); set(0, R_RATE, 2, 2); set(0, R_JUMP, 0, 7);
+        fresh(0); set(0, R_AIR, 0, 0); set(0, R_MEM, 100, 100); set(0, R_RATE, 2, 2); set(0, R_JUMP, 0, 7);
         sr_cur(&sr[0])->plen = 0;                     /* 4 notes */
         sr_toggle(0); run(0, BEAT * 8 - 64);
         int loop = nseq >= 24; for (int i = 4; i < nseq; i++) loop &= seq[i] == seq[i - 4];
@@ -150,8 +167,11 @@ int main(int argc, char **argv)
         sr_turn(0, 1, -100 * 1024, 0);
         CHECK(p->lo[R_NOTE] == p->hi[R_NOTE], "width 0");
         sr_turn(0, 2, 3 * 1024, 1);                         /* Shift + white: AIR 20 -> 35 */
-        CHECK(p->hi[R_AIR] == 35, "AIR %d", p->hi[R_AIR]);
-        sr_press(0, 3, 0); CHECK(p->plen == 3 && sr_plens[p->plen] == 32, "MEM press: phrase 32");
+        CHECK(p->lo[R_AIR] == 25 && p->hi[R_AIR] == 45, "AIR %d..%d", p->lo[R_AIR], p->hi[R_AIR]);
+        sr_press(0, 3, 0); sr_turn(0, 3, 2 * 1024, 0);      /* MEM is a range too: width 30 -> 40 */
+        CHECK(p->hi[R_MEM] - p->lo[R_MEM] == 40, "MEM width %d..%d", p->lo[R_MEM], p->hi[R_MEM]);
+        sr_press(0, 3, 0);
+        sr_phrase_len(0); CHECK(p->plen == 3 && sr_plens[p->plen] == 32, "Shift + lift: phrase 32");
         sr_turn(0, 0, 2 * 1024, 1);                         /* Shift + blue: GATE moves */
         CHECK(p->lo[R_GATE] == 3 && p->hi[R_GATE] == 5, "GATE %d..%d", p->lo[R_GATE], p->hi[R_GATE]);
         sr_root(0, 62); sr_scale_step(0, 1);
@@ -177,7 +197,7 @@ int main(int argc, char **argv)
     }
     /* stars: one per note played, height from the NOTE range, flags */
     {
-        fresh(0); set(0, R_AIR, 0, 0); set(0, R_POLY, 1, 3); set(0, R_MEM, 0, 50); set(0, R_RATE, 3, 3); sr_cur(&sr[0])->plen = 0;
+        fresh(0); set(0, R_AIR, 0, 0); set(0, R_POLY, 1, 3); set(0, R_MEM, 50, 50); set(0, R_RATE, 3, 3); sr_cur(&sr[0])->plen = 0;
         sr_toggle(0); run(0, BEAT * 4 - 64);
         int want = n_on[0] < SR_STARS ? n_on[0] : SR_STARS;
         CHECK(sr[0].star_used == want, "stars %d, note-ons %d", sr[0].star_used, n_on[0]);
