@@ -3,3 +3,4 @@ out/
 *.op1
 tools/build/
 trackracer/test/build/
+leapfrog/test/build/

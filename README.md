@@ -34,12 +34,20 @@ step and live recording, 4 patterns, mutes; synth and drum mode. Details: [`trac
 
 ![Track Racer](demos/trackracer_anim.gif)
 
+## Leapfrog
+
+A random note generator where every parameter is a range drawn as a log on a river, and a frog on each log jumps to
+the value drawn at each note: rate, gate, pitch range, leap size, velocity, rests, phrase memory and chords, in a
+scale. 8-bit arcade look. Details: [`leapfrog/README.md`](leapfrog/README.md).
+
+![Leapfrog](demos/leapfrog_anim.gif)
+
 ## Layout
 
     monolith/        synth engine: monolith.c, monolith.svg, plugin.json, long-render harness
     trackracer/         sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
     demos/           PC renders (mp3), spectrogram, screen preview and animation
-    release/         monolith.op1p and track_racer.op1p, ready to install (op1r 34+, plugin API 1)
+    release/         monolith.op1p, track_racer.op1p and leapfrog.op1p, ready to install (op1r 34+, plugin API 1)
     tools/           animated screen preview (make_anim.py)
     setup.sh         links the plugins into an op1r-src checkout
 
@@ -49,7 +57,7 @@ step and live recording, 4 patterns, mutes; synth and drum mode. Details: [`trac
     cd ../op1r-src/synth_sdk
     python3 harness/audio.py monolith            # sanitizer test -> WAV
     python3 harness/render.py monolith           # screen preview -> PNG
-    python3 make_plugin.py monolith "track racer"      # -> build/plugins/*.op1p (bfin-elf toolchain)
+    python3 make_plugin.py monolith "track racer" leapfrog      # -> build/plugins/*.op1p (bfin-elf toolchain)
     python3 ../../OP-1_Monolith/trackracer/test/render_trackracer.py ..   # track racer host test + preview
 
 ## Installing on the OP-1
