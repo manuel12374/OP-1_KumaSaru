@@ -89,8 +89,8 @@ recording. Details: [`modulo/README.md`](modulo/README.md).
 
 ## Firmware bundles
 
-Bundles are named `op1r44_SceriffoRosso_<version>.op1`: op1r 44 with all its official plugins (every file
-byte-identical) plus every plugin in `release/`:
+Bundles are named `op1r44_KumaSaru_<version>.op1`: op1r 44 with all its official plugins (every file
+byte-identical) plus every plugin in `release/` (bundles up to 0.7 were first named `op1r44_SceriffoRosso_<version>.op1`):
 
     python3 tools/make_bundle.py <version> <op1r 44 .op1> <op1r checkout> [out dir]
 

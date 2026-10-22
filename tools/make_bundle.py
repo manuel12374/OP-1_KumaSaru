@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the firmware bundle: op1r 44 (all official plugins) + every plugin in release/, named
-op1r44_SceriffoRosso_<version>.op1.
+op1r44_KumaSaru_<version>.op1.
     python3 tools/make_bundle.py <version> <op1r 44 .op1 (from op1r's patch_op1.py)> <op1r checkout> [out dir]
 Every file of the op1r image stays byte-identical; the release/*.op1p files are added under plugins/."""
 import copy, glob, hashlib, os, sys
@@ -20,6 +20,6 @@ out = P.pack_op1(P.pack_tar(members))
 _, chk = P.unpack(out); _, m0 = P.unpack(src)
 a = {m.name: d for m, d in m0}; b = {m.name: d for m, d in chk}
 assert set(b) - set(a) == set(add) and all(a[k] == b[k] for k in a) and all(b[k] == v for k, v in add.items())
-path = os.path.join(out_dir, f'op1r44_SceriffoRosso_{ver}.op1')
+path = os.path.join(out_dir, f'op1r44_KumaSaru_{ver}.op1')
 open(path, 'wb').write(out)
 print(path, '\n  plugins added:', ', '.join(sorted(n[8:] for n in add)), '\n  sha256', hashlib.sha256(out).hexdigest())
