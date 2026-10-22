@@ -3,7 +3,7 @@
 A suite of custom synth engines and sequencers for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
 firmware (R246), written with the synth SDK from [op1r-src](https://github.com/pcppcp/op1r-src).
 
-## monolith
+## Monolith
 
 A techno / industrial drone engine: long pads that never repeat, for techno and progressive tracks.
 
