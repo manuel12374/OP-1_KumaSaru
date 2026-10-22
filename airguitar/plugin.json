@@ -1,0 +1,22 @@
+{
+  "name": "airguitar",
+  "author": "Manuel Montanari",
+  "kind": "synth",
+  "symbol": "ENGINE_airguitar",
+  "sources": [
+    "airguitar.c"
+  ],
+  "defaults": [
+    0,
+    0,
+    16384,
+    22000
+  ],
+  "coarse": [
+    0
+  ],
+  "screen": {
+    "svg": "airguitar.svg",
+    "symbol": "SCREEN_airguitar"
+  }
+}

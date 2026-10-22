@@ -42,12 +42,25 @@ in a scale, and in the middle a star field where every note played becomes a sta
 
 ![Star-Roll](demos/starroll_anim.gif)
 
+## AirGuitar
+
+A synth engine you play by **strumming the OP-1 through the air**: hold a chord on the keys and move the OP-1 down
+or up; the accelerometer turns the motion into a strum across six Karplus-Strong strings. Eight guitars (classical,
+flamenco, folk, jumbo, jazz archtop, clean and crunch electric, banjo), drive, tone, sustain / palm mute; page 2 sets
+how hard a stroke must be and the play mode (gesture only, or gesture + keys). The screen is the neck seen by the
+player, the 1st string at the bottom. Details: [`airguitar/README.md`](airguitar/README.md).
+
+![AirGuitar](demos/airguitar_anim.gif)
+
 ## Layout
 
     monolith/        synth engine: monolith.c, monolith.svg, plugin.json, long-render harness
-    trackracer/         sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
+    trackracer/      sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
+    starroll/        sequencer: starroll.c, starroll.svg, plugin.json, host test + preview (test/)
+    airguitar/       synth engine: airguitar.c, airguitar.svg, plugin.json, host test + preview + demo (test/)
     demos/           PC renders (mp3), spectrogram, screen preview and animation
-    release/         monolith.op1p, track_racer.op1p and star-roll.op1p, ready to install (op1r 34+, plugin API 1)
+    release/         monolith.op1p, track_racer.op1p, star-roll.op1p, airguitar.op1p, ready to install (op1r 34+;
+                     airguitar needs op1r 44 for its 8-step guitar knob)
     tools/           firmware bundle (make_bundle.py), animated monolith preview (make_anim.py)
     setup.sh         links the plugins into an op1r-src checkout
 
@@ -57,7 +70,7 @@ in a scale, and in the middle a star field where every note played becomes a sta
     cd ../op1r-src/synth_sdk
     python3 harness/audio.py monolith            # sanitizer test -> WAV
     python3 harness/render.py monolith           # screen preview -> PNG
-    python3 make_plugin.py monolith "track racer" star-roll      # -> build/plugins/*.op1p (bfin-elf toolchain)
+    python3 make_plugin.py monolith "track racer" star-roll airguitar   # -> build/plugins/*.op1p (bfin-elf toolchain)
     python3 ../../OP-1_KumaSaru/trackracer/test/render_trackracer.py ..   # track racer host test + preview
 
 ## Firmware bundles
@@ -72,6 +85,7 @@ byte-identical) plus every plugin in `release/`:
 | 0.3 | monolith (2001 screen), Track Racer V1.2, Leapfrog V1.0 |
 | 0.4 | monolith, Track Racer V1.2, Star-Roll V1.0 (replaces Leapfrog) |
 | 0.5 | Star-Roll V1.1: AIR and MEM are ranges like the others; phrase length on Shift + lift |
+| 0.6 | + AirGuitar V1.0 (monolith, Track Racer V1.2, Star-Roll V1.1 unchanged) |
 
 ## Installing on the OP-1
 
