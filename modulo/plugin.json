@@ -1,0 +1,13 @@
+{
+  "name": "modulo",
+  "author": "Manuel Montanari",
+  "kind": "seq",
+  "symbol": "SEQ_modulo",
+  "sources": [
+    "modulo.c"
+  ],
+  "screen": {
+    "svg": "modulo.svg",
+    "symbol": "SCREEN_modulo"
+  }
+}

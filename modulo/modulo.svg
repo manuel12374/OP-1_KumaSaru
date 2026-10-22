@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+	 width="320px" height="160px" viewBox="0 0 320 160">
+<!-- modulo: two dividers; steps, playheads and text are drawn by modulo.c -->
+<line fill="none" stroke="#2A2C2E" stroke-width="1" x1="0" y1="12.5" x2="320" y2="12.5"/>
+<line fill="none" stroke="#2A2C2E" stroke-width="1" x1="0" y1="117.5" x2="320" y2="117.5"/>
+</svg>

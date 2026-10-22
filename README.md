@@ -52,14 +52,23 @@ player, the 1st string at the bottom. Details: [`airguitar/README.md`](airguitar
 
 ![AirGuitar](demos/airguitar_anim.gif)
 
+## Modulo
+
+A polyrhythmic step sequencer: eight tracks of steps, each with its own length (1–32) and step size (1/32 to 1/4,
+triplets), so the rows drift against each other; accents, volume and mute per track, 4 patterns, step and live
+recording; synth and drum mode. Details: [`modulo/README.md`](modulo/README.md).
+
+![Modulo](demos/modulo_anim.gif)
+
 ## Layout
 
     monolith/        synth engine: monolith.c, monolith.svg, plugin.json, long-render harness
     trackracer/      sequencer: trackracer.c, trackracer.svg, plugin.json, host test + preview (test/)
     starroll/        sequencer: starroll.c, starroll.svg, plugin.json, host test + preview (test/)
+    modulo/          sequencer: modulo.c, modulo.svg, plugin.json, host test + preview (test/)
     airguitar/       synth engine: airguitar.c, airguitar.svg, plugin.json, host test + preview + demo (test/)
     demos/           PC renders (mp3), spectrogram, screen preview and animation
-    release/         monolith.op1p, track_racer.op1p, star-roll.op1p, airguitar.op1p, ready to install (op1r 34+;
+    release/         monolith.op1p, track_racer.op1p, star-roll.op1p, airguitar.op1p, modulo.op1p, ready to install (op1r 34+;
                      airguitar needs op1r 44 for its 8-step guitar knob)
     tools/           firmware bundle (make_bundle.py), animated monolith preview (make_anim.py)
     setup.sh         links the plugins into an op1r-src checkout
@@ -70,7 +79,7 @@ player, the 1st string at the bottom. Details: [`airguitar/README.md`](airguitar
     cd ../op1r-src/synth_sdk
     python3 harness/audio.py monolith            # sanitizer test -> WAV
     python3 harness/render.py monolith           # screen preview -> PNG
-    python3 make_plugin.py monolith "track racer" star-roll airguitar   # -> build/plugins/*.op1p (bfin-elf toolchain)
+    python3 make_plugin.py monolith "track racer" star-roll airguitar modulo   # -> build/plugins/*.op1p (bfin-elf toolchain)
     python3 ../../OP-1_KumaSaru/trackracer/test/render_trackracer.py ..   # track racer host test + preview
 
 ## Firmware bundles
@@ -86,6 +95,7 @@ byte-identical) plus every plugin in `release/`:
 | 0.4 | monolith, Track Racer V1.2, Star-Roll V1.0 (replaces Leapfrog) |
 | 0.5 | Star-Roll V1.1: AIR and MEM are ranges like the others; phrase length on Shift + lift |
 | 0.6 | + AirGuitar V1.0 (monolith, Track Racer V1.2, Star-Roll V1.1 unchanged) |
+| 0.7 | + Modulo V1.0 |
 
 ## Installing on the OP-1
 
