@@ -1,6 +1,6 @@
-# OP-1 Monolith
+# OP-1-KumaSaru
 
-Custom synth engines and sequencers for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
+A suite of custom synth engines and sequencers for the original **Teenage Engineering OP-1** running the [op1r](https://github.com/pcppcp/op1r)
 firmware (R246), written with the synth SDK from [op1r-src](https://github.com/pcppcp/op1r-src).
 
 ## monolith
@@ -58,7 +58,7 @@ in a scale, and in the middle a star field where every note played becomes a sta
     python3 harness/audio.py monolith            # sanitizer test -> WAV
     python3 harness/render.py monolith           # screen preview -> PNG
     python3 make_plugin.py monolith "track racer" star-roll      # -> build/plugins/*.op1p (bfin-elf toolchain)
-    python3 ../../OP-1_Monolith/trackracer/test/render_trackracer.py ..   # track racer host test + preview
+    python3 ../../OP-1-KumaSaru/trackracer/test/render_trackracer.py ..   # track racer host test + preview
 
 ## Firmware bundles
 
