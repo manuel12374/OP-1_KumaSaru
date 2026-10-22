@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Run the leapfrog host test, then render its screen frames and an animation.
-    python3 leapfrog/test/render_leapfrog.py <op1r-src path>
+"""Run the starroll host test, then render its screen frames and an animation.
+    python3 starroll/test/render_starroll.py <op1r-src path>
 Needs cairocffi and Pillow; uses op1r-src's harness/render.py (SVG + lines)."""
 import json, os, subprocess, sys, xml.etree.ElementTree as ET
 HERE = os.path.dirname(os.path.abspath(__file__)); PLUG = os.path.dirname(HERE)
@@ -9,13 +9,13 @@ DEMOS = os.path.join(PLUG, '..', 'demos')
 SDK = os.path.join(SRC, 'synth_sdk'); sys.path.insert(0, os.path.join(SDK, 'harness'))
 import render as R
 from PIL import Image
-exe = os.path.join(HERE, 'build', 'leapfrog_test'); os.makedirs(os.path.dirname(exe), exist_ok=True)
+exe = os.path.join(HERE, 'build', 'starroll_test'); os.makedirs(os.path.dirname(exe), exist_ok=True)
 subprocess.run(['cc', '-O1', '-Wall', '-Wextra', '-Wno-unused-parameter', '-DOP1_HOST', '-fsanitize=address,undefined',
                 '-fno-sanitize-recover=undefined', '-I', SDK, '-I', os.path.join(SDK, 'harness'),
-                os.path.join(HERE, 'leapfrog_test.c'), '-lm', '-o', exe], check=True)
+                os.path.join(HERE, 'starroll_test.c'), '-lm', '-o', exe], check=True)
 chk = subprocess.run([exe], capture_output=True, text=True); print(chk.stdout.strip(), chk.stderr.strip())
 if chk.returncode: sys.exit(1)
-svg = ET.parse(os.path.join(PLUG, 'leapfrog.svg')).getroot()
+svg = ET.parse(os.path.join(PLUG, 'starroll.svg')).getroot()
 cairo = R.cairo
 def draw(ctx, fr):
     ctx.set_source_rgb(0, 0, 0); ctx.paint()
@@ -33,13 +33,13 @@ for n, fr in enumerate(frames):
     ctx.save(); ctx.set_source_rgb(1, 1, 1); ctx.set_font_size(14); ctx.move_to(x0, y0 + 15)
     ctx.show_text(f"{fr['label']}   ({len(fr['lines'])} lines)"); ctx.restore()
     ctx.save(); ctx.translate(x0, y0 + lab); ctx.rectangle(0, 0, W, H); ctx.clip(); ctx.scale(S, S); draw(ctx, fr); ctx.restore()
-out = os.path.join(DEMOS, 'leapfrog_preview.png'); surf.write_to_png(out); print('->', out)
+out = os.path.join(DEMOS, 'starroll_preview.png'); surf.write_to_png(out); print('->', out)
 mx = max((max(l[1], l[3]) + l[4] / 2) / 1024 for fr in frames for l in fr['lines']); print('lowest pixel drawn: %.1f' % mx)
 anim = [json.loads(l) for l in subprocess.run([exe, 'anim'], check=True, capture_output=True, text=True).stdout.splitlines() if l.startswith('{')]
 imgs, S2 = [], 2
 for fr in anim:
     sf = cairo.ImageSurface(cairo.FORMAT_RGB24, 320 * S2, 160 * S2); cx = cairo.Context(sf); cx.scale(S2, S2); draw(cx, fr)
     imgs.append(Image.frombuffer('RGBA', (320 * S2, 160 * S2), bytes(sf.get_data()), 'raw', 'BGRA', 0, 1).convert('RGB').quantize(64))
-gif = os.path.join(DEMOS, 'leapfrog_anim.gif')
+gif = os.path.join(DEMOS, 'starroll_anim.gif')
 imgs[0].save(gif, save_all=True, append_images=imgs[1:], duration=50, loop=0, optimize=True)
 print(len(imgs), 'frames ->', gif)

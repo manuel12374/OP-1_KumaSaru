@@ -1,0 +1,13 @@
+{
+  "name": "star-roll",
+  "author": "Manuel Montanari",
+  "kind": "seq",
+  "symbol": "SEQ_starroll",
+  "sources": [
+    "starroll.c"
+  ],
+  "screen": {
+    "svg": "starroll.svg",
+    "symbol": "SCREEN_starroll"
+  }
+}
